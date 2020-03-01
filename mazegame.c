@@ -36,7 +36,7 @@
 #include <stdlib.h>
 #include <sys/time.h>
 #include <time.h>
-
+#include <string.h>
 #include "blocks.h"
 #include "maze.h"
 #include "modex.h"
@@ -407,6 +407,7 @@ static void *rtc_thread(void *arg) {
     unsigned char** fruit_floor[50];
     // Loop over levels until a level is lost or quit.
     for (level = 1; (level <= MAX_LEVEL) && (quit_flag == 0); level++) {
+        fill_palette_new(level);
         start_t=clock();
         a[0]='L';
         a[1]='e';
@@ -689,10 +690,10 @@ static void *rtc_thread(void *arg) {
                    if(on_length){
                     end_off=clock();
                     double on_tick=(double)(end_off-start_on);
-                    int on_second=(int)(on_tick/CLOCKS_PER_SEC);
-                    if(on_tick>=5000000){
-                        on_length=0;
-                    }
+                    //int on_second=(int)(on_tick/CLOCKS_PER_SEC);
+                    // if(on_tick>=5000000){
+                    //     on_length=0;
+                    // }
                    }
                    
             }

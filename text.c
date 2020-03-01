@@ -121,7 +121,8 @@ void text_to_graphic_f(char* s, int w, int h, unsigned char** floor){
                 //find which pixel is valid for printing
                 if((temp[y+2] >> (7-x))&1)
                 //updates the buffer and print the pixel black
-                    buf[y][x+i*12] = (*(*(floor+i)+y*12+x))/2;
+                    buf[y][x+i*12] = (*(*(floor+i)+y*12+x)+15);
+                    // (*(*(floor+i)+y*12+x)+15)/2
                 else    
                     buf[y][x+i*12] = 10;
             }
