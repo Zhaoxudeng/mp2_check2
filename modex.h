@@ -124,14 +124,16 @@ extern void show_screen();
 
 /* clear the video memory in mode X */
 extern void clear_screens();
+/*new palette to update wall color and find transparent color*/
 extern void fill_palette_new(int level);
+
+/*draws the transparent text on the VGA*/
+extern void draw_full_fruit(int pos_x, int pos_y, unsigned char* buf, int x_size, int y_size);
 /*
  * draw a 12x12 block with upper left corner at logical position
  * (pos_x,pos_y); any part of the block outside of the logical view window
  * is clipped (cut off and not drawn)
  */
-extern unsigned char* get_fruit_floor_block(int pos_x, int pos_y, int x_size, int y_size);
-extern void draw_full_fruit(int pos_x, int pos_y, unsigned char* buf, int x_size, int y_size);
 extern void draw_full_block(int pos_x, int pos_y, unsigned char* blk);
 /*unmask the background color from player sprite*/
 extern void draw_back_floor(int pos_x, int pos_y, unsigned char* player, unsigned char* mask,int color);

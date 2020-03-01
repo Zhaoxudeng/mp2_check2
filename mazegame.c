@@ -59,7 +59,9 @@
 #define DOWN      66
 #define RIGHT     67
 #define LEFT      68
-
+#define X_OFFSET  12
+#define Y_OFFSET  12
+#define FIVE_SEC  5000000
 /*
  * If NDEBUG is not defined, we execute sanity checks to make sure that
  * changes to enumerations, bit maps, etc., have been made consistently.
@@ -404,17 +406,21 @@ static void *rtc_thread(void *arg) {
     clock_t start_on, end_off;
     
     unsigned char* floor;
-    unsigned char** fruit_floor[50];
+    unsigned char* fruit_floor[50];
     // Loop over levels until a level is lost or quit.
     for (level = 1; (level <= MAX_LEVEL) && (quit_flag == 0); level++) {
+        // modify the palette to change wall color
         fill_palette_new(level);
+        //start time counting
         start_t=clock();
+        //text to put on status bar
         a[0]='L';
         a[1]='e';
         a[2]='v';
         a[3]='e';
         a[4]='l';
         a[5]=' ';
+        //update level
         if(level<10)
             a[6]='0'+level;
         if(level>=10){
@@ -427,6 +433,8 @@ static void *rtc_thread(void *arg) {
         }
         a[8]=' ';
         a[9]=' ';
+        //initialize fruit number
+        int fruit_numm=( 1 + (level-1) / 2);
         if(1+(level-1)/2<=6)
             a[10]='0'+ 1 + (level-1) / 2;
         else
@@ -441,7 +449,12 @@ static void *rtc_thread(void *arg) {
         a[14]='u';
         a[15]='i';
         a[16]='t';
+        if(fruit_numm>1){
+            a[17]='s';
+        }
+        else
         a[17]=' ';
+
         a[18]=' ';
         a[19]=' ';
             
@@ -470,37 +483,21 @@ static void *rtc_thread(void *arg) {
 
         // Show maze around the player's original position
         (void)unveil_around_player(play_x, play_y);
-
-        // get the floor block image into a buffer
-        // int jj=strlen(b);
-       // fruit_floor=get_fruit_floor_block(play_x, play_y+5,8,12);
-        
+        //initialize variables to the transparent text
         int xxx[strlen(b)];
-            xxx[0]=play_x-12;
-        int yyy=play_y-12;
+            xxx[0]=play_x-X_OFFSET;
+        int yyy=play_y-Y_OFFSET;
         
         int jj=0;
-        // for(jj=0;jj<strlen(b);jj++){
-        //     fruit_floor[jj]=get_floor_block(xxx[jj], yyy);
-        //     xxx[jj+1]=xxx[jj]+12;
-        // }
-                            
-       // text_to_graphic_f(b,xxx[0],yyy,fruit_floor);             
+     
+        // get the floor under player                    
         floor=get_floor_block(play_x, play_y);
-        //  if(check_for_fruit(play_x/BLOCK_X_DIM,play_y/BLOCK_Y_DIM)){
-        //      b[0]='A';b[1]='B';b[2]='C';
-        //  }
-
-        
         // draw the player sprite with masking
         draw_back_floor(play_x, play_y, get_player_block(last_dir),get_player_mask(last_dir),15);
         show_screen();
         //draw back the trail behind player
         draw_full_block(play_x, play_y, floor);
-        // for(jj=0;jj<strlen(b);jj++){
-        // draw_full_block(xxx[jj], yyy, fruit_floor[jj]);
-        // }
-        //draw_full_block(play_x, ppp, fruit_floor); 
+        free(floor);
         
 
         // get first Periodic Interrupt
@@ -553,16 +550,9 @@ static void *rtc_thread(void *arg) {
                     a[24]='0'+time_second%10;
                 }
                 
-
-                
+                //update the status bar text
                 text_to_graphic(a,level) ;
-                //update fruit
-                
-                // if(check_for_fruit(play_x/BLOCK_X_DIM,play_y/BLOCK_Y_DIM)){						 
-                //     a[10]--;
-                //     text_to_graphic(a,level);
-                    
-                //                     }   
+               
 
                 // Lock the mutex
                 pthread_mutex_lock(&mtx);
@@ -642,58 +632,67 @@ static void *rtc_thread(void *arg) {
                    
                     need_redraw = 1;
                 }
-                 // get floor
-                  
+                
+                  //check if the player find a fruit
                   int fruit_n=check_for_fruit(play_x/BLOCK_X_DIM,play_y/BLOCK_Y_DIM);
                   if(fruit_n!=0){
+                      //updates fruit count
                       a[10]--;
+                      fruit_numm--;
+                      if(fruit_numm>1){
+                          a[17]='s';
+                      }
+                      else
+                      {
+                          a[17]=' ';
+                      }
+                    // updates status bar text
                     text_to_graphic(a,level);
+                    // turn on the transparent text
                     on_length=1;
+                    //start counting the time of the text's duration
                     start_on=clock();
+                    //print different fruit name for fruit
                     b[0]='F';
                     b[1]='T';
-                    // b[2]='u';
-                    // b[3]='i';
-                    // b[4]='t';
                     b[2]='0'+fruit_n;
-
-                   // 
                   }
+                  //turn on the transparent text
                   if(on_length){      
-
-                        xxx[0]=play_x-12;
-                        yyy=play_y-12;
-               
-
+                    //variables to get the floor under text
+                    xxx[0]=play_x-X_OFFSET;
+                    yyy=play_y-Y_OFFSET;
                     jj=0;
                     for(jj=0;jj<strlen(b);jj++){
                         fruit_floor[jj]=get_floor_block(xxx[jj], yyy);
                         xxx[jj+1]=xxx[jj]+12;
                     }
-                    
+                    //transform the font_data to text and print to screen
                     text_to_graphic_f(b,xxx[0],yyy,fruit_floor);
                   } 
-                  
+                  //get the floor under player
                    floor=get_floor_block(play_x, play_y);
                  // draw player with masking   
                     draw_back_floor(play_x, play_y, get_player_block(last_dir),get_player_mask(last_dir),(glow_cycle%10+1));
                     show_screen();
                  //draw back floor   
                     draw_full_block(play_x, play_y, floor);
+                    free(floor);
+                 //draw back text floor   
                    if(on_length){
                     for(jj=0;jj<strlen(b);jj++){
                         draw_full_block(xxx[jj], yyy, fruit_floor[jj]);
                         
                     }                  
                    }
-
+                //turn off the transparent text after 5 second
                    if(on_length){
                     end_off=clock();
                     double on_tick=(double)(end_off-start_on);
-                    //int on_second=(int)(on_tick/CLOCKS_PER_SEC);
-                    // if(on_tick>=5000000){
-                    //     on_length=0;
-                    // }
+                    if(on_tick>=FIVE_SEC){
+                        //turn off text
+                        on_length=0;
+                    }
                    }
                    
             }

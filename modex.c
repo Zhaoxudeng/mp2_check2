@@ -573,14 +573,7 @@ void draw_full_block(int pos_x, int pos_y, unsigned char* blk) {
     int dx, dy;          /* loop indices for x and y traversal of block */
     int x_left, x_right; /* clipping limits in horizontal dimension     */
     int y_top, y_bottom; /* clipping limits in vertical dimension       */
-    // int flag=0;
-    // int i=0;
-    // for (i=0;i<16;i++){
-    //     if(blk==(unsigned char*)blocks[i]){
-    //         flag=1;
-    //         break;
-    //     }
-    // }
+  
     /* If block is completely off-screen, we do nothing. */
     if (pos_x + BLOCK_X_DIM <= show_x || pos_x >= show_x + SCROLL_X_DIM ||
         pos_y + BLOCK_Y_DIM <= show_y || pos_y >= show_y + SCROLL_Y_DIM)
@@ -623,30 +616,33 @@ void draw_full_block(int pos_x, int pos_y, unsigned char* blk) {
     /* Draw the clipped image. */
     for (dy = 0; dy < y_bottom; dy++, pos_y++) {
         for (dx = 0; dx < x_right; dx++, pos_x++, blk++)
-           // if(flag==0){
+          
                 *(img3 + (pos_x >> 2) + pos_y * SCROLL_X_WIDTH +
                 (3 - (pos_x & 3)) * SCROLL_SIZE) = *blk;
-           // }
-            // else{
-            //     *(img3 + (pos_x >> 2) + pos_y * SCROLL_X_WIDTH +
-            //     (3 - (pos_x & 3)) * SCROLL_SIZE) = *blk+i*10;
-            // }
+         
         pos_x -= x_right;
         blk += x_left;
     }
 }
+/*
+ * draw_full_fruit
+ *   DESCRIPTION: Draw a x_size x y_size block at absolute
+ *                coordinates.  Mask any portion of the block not inside
+ *                the logical view window.
+ *   INPUTS: (pos_x,pos_y) -- coordinates of upper left corner of block
+ *           buf -- image data for block (one byte per pixel, as a C array
+ *                  of dimensions [x_size][y_size])
+ *           x_size -- the width of the text image
+ *           y_size -- the height of the text image
+ *   OUTPUTS: none
+ *   RETURN VALUE: none
+ *   SIDE EFFECTS: draws into the build buffer
+ */
 void draw_full_fruit(int pos_x, int pos_y, unsigned char* buf, int x_size, int y_size) {
     int dx, dy;          /* loop indices for x and y traversal of block */
     int x_left, x_right; /* clipping limits in horizontal dimension     */
     int y_top, y_bottom; /* clipping limits in vertical dimension       */
-    // int flag=0;
-    // int i=0;
-    // for (i=0;i<16;i++){
-    //     if(blk==(unsigned char*)blocks[i]){
-    //         flag=1;
-    //         break;
-    //     }
-    // }
+
     /* If block is completely off-screen, we do nothing. */
     if (pos_x + x_size <= show_x || pos_x >= show_x + SCROLL_X_DIM ||
         pos_y + y_size <= show_y || pos_y >= show_y + SCROLL_Y_DIM)
@@ -714,6 +710,7 @@ void draw_full_fruit(int pos_x, int pos_y, unsigned char* buf, int x_size, int y
  *                  of dimensions [BLOCK_Y_DIM][BLOCK_X_DIM])
  *           mask -- player mask that determines in the player sprite where is
  *                  background and where is the actual sprite
+ *           color -- the change of color to draw to the head   
  *   OUTPUTS: none
  *   RETURN VALUE: none
  *   SIDE EFFECTS: draws into the build buffer
@@ -850,71 +847,7 @@ unsigned char* get_floor_block(int pos_x, int pos_y) {
 }
 
 
-// unsigned char * get_fruit_floor_block(int pos_x, int pos_y, int x_size, int y_size) {
-//     unsigned char *buf=(unsigned char *)malloc(x_size*y_size*sizeof(char));
-//     int dx, dy;          /* loop indices for x and y traversal of block */
-//     int x_left, x_right; /* clipping limits in horizontal dimension     */
-//     int y_top, y_bottom; /* clipping limits in vertical dimension       */
-//     // int flag=0;
-//     // int i=0;
-//     // for (i=0;i<16;i++){
-//     //     if(blk==(unsigned char*)blocks[i]){
-//     //         flag=1;
-//     //         break;
-//     //     }
-//     // }
-//     /* If block is completely off-screen, we do nothing. */
-//     if (pos_x + x_size <= show_x || pos_x >= show_x + SCROLL_X_DIM ||
-//         pos_y + y_size <= show_y || pos_y >= show_y + SCROLL_Y_DIM)
-//         return buf;
 
-//     /* Clip any pixels falling off the left side of screen. */
-//     if ((x_left = show_x - pos_x) < 0)
-//         x_left = 0;
-//     /* Clip any pixels falling off the right side of screen. */
-//     if ((x_right = show_x + SCROLL_X_DIM - pos_x) > x_size)
-//         x_right = x_size;
-//     /* Skip the first x_left pixels in both screen position and block data. */
-//     pos_x += x_left;
-//     buf += x_left;
-
-//     /*
-//      * Adjust x_right to hold the number of pixels to be drawn, and x_left
-//      * to hold the amount to skip between rows in the block, which is the
-//      * sum of the original left clip and (BLOCK_X_DIM - the original right
-//      * clip).
-//      */
-//     x_right -= x_left;
-//     x_left = x_size- x_right;
-
-//     /* Clip any pixels falling off the top of the screen. */
-//     if ((y_top = show_y - pos_y) < 0)
-//         y_top = 0;
-//     /* Clip any pixels falling off the bottom of the screen. */
-//     if ((y_bottom = show_y + SCROLL_Y_DIM - pos_y) > y_size)
-//         y_bottom = y_size;
-//     /*
-//      * Skip the first y_left pixel in screen position and the first
-//      * y_left rows of pixels in the block data.
-//      */
-//     pos_y += y_top;
-//     buf += y_top * x_size;
-//     /* Adjust y_bottom to hold the number of pixel rows to be drawn. */
-//     y_bottom -= y_top;
-    
-//     /* Draw the clipped image. */
-//     int i=0;
-//     for (dy = 0; dy < y_bottom; dy++, pos_y++) {
-//         for (dx = 0; dx < x_right; dx++, pos_x++,i++, buf++)
- 
-//                buf[i]= *(img3 + (pos_x >> 2) + pos_y * SCROLL_X_WIDTH +
-//                 (3 - (pos_x & 3)) * SCROLL_SIZE);
-
-//         pos_x -= x_right;
-//         buf += x_left;
-//     }
-//     return buf;
-// }
 /*
  * The functions inside the preprocessor block below rely on functions
  * in maze.c to generate graphical images of the maze.  These functions
@@ -1164,50 +1097,15 @@ static void set_graphics_registers(unsigned short table[NUM_GRAPHICS_REGS]) {
 /*
  * fill_palette
  *   DESCRIPTION: Fill VGA palette with necessary colors for the maze game.
- *                Only the first 64 (of 256) colors are written.
+ *                Only the first 80 (of 256) colors are written.
  *   INPUTS: none
  *   OUTPUTS: none
  *   RETURN VALUE: none
- *   SIDE EFFECTS: changes the first 64 palette colors
+ *   SIDE EFFECTS: changes the first 80 palette colors
  */
 static void fill_palette() {
-    /* 6-bit RGB (red, green, blue) values for first 64 colors */
-    // static unsigned char palette_RGB[64][3] = {
-    //     { 0x00, 0x00, 0x00 },{ 0x00, 0x00, 0x2A },   /* palette 0x00 - 0x0F    */
-    //     { 0x00, 0x2A, 0x00 },{ 0x00, 0x2A, 0x2A },   /* basic VGA colors       */
-    //     { 0x2A, 0x00, 0x00 },{ 0x2A, 0x00, 0x2A },
-    //     { 0x2A, 0x15, 0x00 },{ 0x2A, 0x2A, 0x2A },
-    //     { 0x15, 0x15, 0x15 },{ 0x15, 0x15, 0x3F },
-    //     { 0x15, 0x3F, 0x15 },{ 0x15, 0x3F, 0x3F },
-    //     { 0x3F, 0x15, 0x15 },{ 0x3F, 0x15, 0x3F },
-    //     { 0x3F, 0x3F, 0x15 },{ 0x3F, 0x3F, 0x3F },
-    //     { 0x00, 0x00, 0x00 },{ 0x05, 0x05, 0x05 },   /* palette 0x10 - 0x1F    */
-    //     { 0x08, 0x08, 0x08 },{ 0x0B, 0x0B, 0x0B },   /* VGA grey scale         */
-    //     { 0x0E, 0x0E, 0x0E },{ 0x11, 0x11, 0x11 },
-    //     { 0x14, 0x14, 0x14 },{ 0x18, 0x18, 0x18 },
-    //     { 0x1C, 0x1C, 0x1C },{ 0x20, 0x20, 0x20 },
-    //     { 0x24, 0x24, 0x24 },{ 0x28, 0x28, 0x28 },
-    //     { 0x2D, 0x2D, 0x2D },{ 0x32, 0x32, 0x32 },
-
-    //     { 0x38, 0x38, 0x38 },{ 0x3F, 0x3F, 0x3F },
-    //     { 0x3F, 0x3F, 0x3F },{ 0x3F, 0x3F, 0x3F },   /* palette 0x20 - 0x2F    */
-    //     { 0x00, 0x00, 0x3F },{ 0x00, 0x00, 0x00 },   /* wall and player colors */
-    //     { 0x00, 0x00, 0x00 },{ 0x00, 0x00, 0x00 },
-    //     { 0x00, 0x00, 0x00 },{ 0x00, 0x00, 0x00 },
-    //     { 0x00, 0x00, 0x00 },{ 0x00, 0x00, 0x00 },
-    //     { 0x00, 0x00, 0x00 },{ 0x00, 0x00, 0x00 },
-    //     { 0x00, 0x00, 0x00 },{ 0x00, 0x00, 0x00 },
-
-    //     { 0x00, 0x00, 0x00 },{ 0x00, 0x00, 0x00 },
-    //     { 0x10, 0x08, 0x00 },{ 0x18, 0x0C, 0x00 },   /* palette 0x30 - 0x3F    */
-    //     { 0x20, 0x10, 0x00 },{ 0x28, 0x14, 0x00 },   /* browns for maze floor  */
-    //     { 0x30, 0x18, 0x00 },{ 0x38, 0x1C, 0x00 },
-    //     { 0x3F, 0x20, 0x00 },{ 0x3F, 0x20, 0x10 },
-    //     { 0x20, 0x18, 0x10 },{ 0x28, 0x1C, 0x10 },
-    //     { 0x3F, 0x20, 0x10 },{ 0x38, 0x24, 0x10 },
-    //     { 0x3F, 0x28, 0x10 },{ 0x3F, 0x2C, 0x10 },
-    //     { 0x3F, 0x30, 0x10 },{ 0x3F, 0x20, 0x10 }
-    // };
+    /* 6-bit RGB (red, green, blue) values for first 80 colors */
+    
         static unsigned char palette_RGB[80][3] = {
         { 0x00, 0x00, 0x00 },{ 0x00, 0x00, 0x2A },   /* palette 0x00 - 0x0F    */
         { 0x00, 0x2A, 0x00 },{ 0x00, 0x2A, 0x2A },   /* basic VGA colors       */
@@ -1260,9 +1158,18 @@ static void fill_palette() {
     /* Start writing at color 0. */
     OUTB(0x03C8, 0x00);
 
-    /* Write all 64 colors from array. */
+    /* Write all 80 colors from array. */
     REP_OUTSB(0x03C9, palette_RGB, 80 * 3);
 }
+/*
+ * fill_palette_new
+ *   DESCRIPTION: Fill VGA palette with necessary colors for the maze game.
+ *                Only the first 80 (of 256) colors are written.
+ *   INPUTS: none
+ *   OUTPUTS: none
+ *   RETURN VALUE: none
+ *   SIDE EFFECTS: changes the first 80 palette colors
+ */
  void fill_palette_new(int level) {
     /* 6-bit RGB (red, green, blue) values for first 64 colors */
     // static unsigned char palette_RGB[64][3] = {
@@ -1352,7 +1259,7 @@ static void fill_palette() {
         };
             OUTB(0x03C8, 0x00);
 
-    /* Write all 64 colors from array. */
+    /* Write all 80 colors from array. */
     REP_OUTSB(0x03C9, palette_RGB, 80 * 3);
         }
     else if(level%3==1){
@@ -1407,7 +1314,7 @@ static void fill_palette() {
     };
         OUTB(0x03C8, 0x00);
 
-    /* Write all 64 colors from array. */
+    /* Write all 80 colors from array. */
     REP_OUTSB(0x03C9, palette_RGB, 80 * 3);
     }
     else if(level%3==2){
@@ -1462,16 +1369,12 @@ static void fill_palette() {
     };
     OUTB(0x03C8, 0x00);
 
-    /* Write all 64 colors from array. */
+    /* Write all 80 colors from array. */
     REP_OUTSB(0x03C9, palette_RGB, 80 * 3);
     }    
     
 
-    /* Start writing at color 0. */
-  //  OUTB(0x03C8, 0x00);
-
-    /* Write all 64 colors from array. */
-  //  REP_OUTSB(0x03C9, palette_RGB, 80 * 3);
+   
 }
 
 /*

@@ -52,6 +52,9 @@
 #define PLANE_SIZE 18*80
 #define X_SIZE    80*4
 #define X_WIDTH   80
+#define x_per_char 12
+#define y_per_char 12
+#define WHITE 15
 /*
  * text_to_graphic
  *   DESCRIPTION: colors the status bar area with user specified color 
@@ -94,19 +97,33 @@ void text_to_graphic(char* s, int level){
     show_status(buf);
     
 }
+/*
+ * text_to_graphic_f
+ *   DESCRIPTION: colors the fruit text area with transparent color 
+ *                converts a string of characters into font_data and stores
+ *                the values into a buffer for printing to the screen
+ *   INPUTS: s -- the string that needs to be transformed into font_data and printed to
+ *                 the screen
+ *           w -- x location of the start of the text
+ *           h -- y location of the start of the text
+ *           floor -- the floor under the text   
+ *   OUTPUTS: buf -- the buffer which contains the ascii image of the character
+ *   RETURN VALUE: none
+ *   SIDE EFFECTS: none
+ */
 void text_to_graphic_f(char* s, int w, int h, unsigned char** floor){
    
     int size=strlen(s);
-    unsigned char buf[12][12*size];
+    unsigned char buf[x_per_char][y_per_char*size];
     int i,j,x,y;
     i=0;
     j=0;
-//calculate the offset for centering the text in the screen
 
 
-//make the entire status bar pink
-    for(i=0;i<12;i++){
-        for(j=0;j<12*size;j++){
+
+//make the entire text buffer green
+    for(i=0;i<x_per_char;i++){
+        for(j=0;j<y_per_char*size;j++){
             buf[i][j]=10;
         }
     }
@@ -115,20 +132,19 @@ void text_to_graphic_f(char* s, int w, int h, unsigned char** floor){
        //find the corresponding font_data
       unsigned char* temp=font_data[(int)s[i]];
 
-        for( x = 0 ; x < 8; x++){
+        for( x = 0 ; x < FONT_WIDTH; x++){
             
-            for(y = 0; y < 12; y++){
+            for(y = 0; y < y_per_char; y++){
                 //find which pixel is valid for printing
                 if((temp[y+2] >> (7-x))&1)
-                //updates the buffer and print the pixel black
-                    buf[y][x+i*12] = (*(*(floor+i)+y*12+x)+15);
-                    // (*(*(floor+i)+y*12+x)+15)/2
+                //updates the buffer and print the pixel transparent
+                    buf[y][x+i*x_per_char] = (*(*(floor+i)+y*x_per_char+x)+WHITE);
                 else    
-                    buf[y][x+i*12] = 10;
+                    buf[y][x+i*x_per_char] = 10;
             }
         }
     }
-    //pass the function to print it to the status bar
+    //pass the function to print it to the screen
     draw_full_fruit(w,h,buf,12*size,12);
     
 }
