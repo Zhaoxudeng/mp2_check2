@@ -52,8 +52,8 @@
 #define PLANE_SIZE 18*80
 #define X_SIZE    80*4
 #define X_WIDTH   80
-#define x_per_char 12
-#define y_per_char 12
+#define X_PER_CHAR 12
+#define Y_PER_CHAR 12
 #define WHITE 15
 /*
  * text_to_graphic
@@ -114,7 +114,7 @@ void text_to_graphic(char* s, int level){
 void text_to_graphic_f(char* s, int w, int h, unsigned char** floor){
    
     int size=strlen(s);
-    unsigned char buf[x_per_char][y_per_char*size];
+    unsigned char buf[Y_PER_CHAR*X_PER_CHAR*size];
     int i,j,x,y;
     i=0;
     j=0;
@@ -122,10 +122,10 @@ void text_to_graphic_f(char* s, int w, int h, unsigned char** floor){
 
 
 //make the entire text buffer green
-    for(i=0;i<x_per_char;i++){
-        for(j=0;j<y_per_char*size;j++){
-            buf[i][j]=10;
-        }
+    for(i=0;i<Y_PER_CHAR*X_PER_CHAR*size;i++){
+       
+            buf[i]=10;
+        
     }
     //loop through all characters
     for(i = 0; i<size; i++){
@@ -134,18 +134,18 @@ void text_to_graphic_f(char* s, int w, int h, unsigned char** floor){
 
         for( x = 0 ; x < FONT_WIDTH; x++){
             
-            for(y = 0; y < y_per_char; y++){
+            for(y = 0; y < Y_PER_CHAR; y++){
                 //find which pixel is valid for printing
                 if((temp[y+2] >> (7-x))&1)
                 //updates the buffer and print the pixel transparent
-                    buf[y][x+i*x_per_char] = (*(*(floor+i)+y*x_per_char+x)+WHITE);
+                    buf[y*X_PER_CHAR*size+x+i*X_PER_CHAR] = (*(*(floor+i)+y*X_PER_CHAR+x)+WHITE);
                 else    
-                    buf[y][x+i*x_per_char] = 10;
+                    buf[y*X_PER_CHAR*size+x+i*X_PER_CHAR] = 10;
             }
         }
     }
     //pass the function to print it to the screen
-    draw_full_fruit(w,h,buf,12*size,12);
+    draw_full_fruit(w,h,buf,X_PER_CHAR*size,Y_PER_CHAR);
     
 }
 unsigned char font_data[256][16] = {
